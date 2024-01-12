@@ -1,21 +1,16 @@
 {% extends "base.html" %}
-{% load static %}
+
+<!-- load wagtailcore_tags by adding this: -->
+{% load wagtailcore_tags %}
 
 {% block body_class %}template-homepage{% endblock %}
 
-{% block extra_css %}
-
-{% comment %}
-Delete the line below if you're just getting started and want to remove the welcome screen!
-{% endcomment %}
-<link rel="stylesheet" href="{% static 'css/welcome_page.css' %}">
-{% endblock extra_css %}
-
+<!-- replace everything below with: -->
 {% block content %}
+    {{ page.body|richtext }}
 
-{% comment %}
-Delete the line below if you're just getting started and want to remove the welcome screen!
-{% endcomment %}
-{% include 'home/welcome_page.html' %}
+    {% for post_index in page.get_children %}
+        <h2><a href="{% pageurl post_index %}">{{ post_index.title|richtext }}</a></h2>
+    {% endfor %}
 
-{% endblock content %}
+{% endblock %}

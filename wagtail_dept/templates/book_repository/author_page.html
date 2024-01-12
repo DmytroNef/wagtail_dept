@@ -1,0 +1,14 @@
+
+{% extends "base.html"}
+
+{% block content %}
+
+    {{ page.name }}
+    {{ page.description }}
+
+    {% for book in books %}
+        {{ book.name }}
+        {{ book.description }}
+    {% endfor %}
+
+{% endblock %}
