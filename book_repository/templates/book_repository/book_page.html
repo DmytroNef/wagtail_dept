@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% block body_class %}template-blogpage{% endblock %}
+
+{% block content %}
+    <h1>{{ page.name }}</h1>
+
+    {% with authors=page.authors.all %}
+        {% if authors %}
+            <h3>Written by:</h3>
+            <ul>
+                {% for author in authors %}
+                    <li style="display: inline">
+                        {% image author.author_image fill-40x60 style="vertical-align: middle" %}
+                        {{ author.name }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+
+    <h4>Book publication date:</h4>
+    <p class="meta">{{ page.create_date }}</p>
+
+    {{ page.description|richtext }}
+
+    <div>
+        {% for item in page.book_images.all %}
+            <div style="float: left; margin: 10px">
+                {% image item.image fill-320x240 %}
+                <p>{{ item.caption }}</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <p><a href="{{ page.get_parent.url }}">Return to book repository</a></p>
+
+{% endblock %}
