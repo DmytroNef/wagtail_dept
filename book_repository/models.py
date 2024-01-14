@@ -11,6 +11,7 @@ from wagtail.snippets.models import register_snippet
 
 @register_snippet
 class Author(models.Model, index.Indexed):
+    """Author snippet model"""
     name = models.CharField(max_length=255)
     author_image = models.ForeignKey(
         'wagtailimages.Image', null=True, blank=True,
@@ -34,14 +35,39 @@ class Author(models.Model, index.Indexed):
 
 
 class BookRepositoryPage(Page):
+    """Book Repository Page model"""
     body = RichTextField(blank=True)
 
     content_panels = Page.content_panels + [
         FieldPanel('body'),
     ]
 
+    def get_context(self, request):
+        context = super().get_context(request)
+        is_filtered = False
+        books = BookPage.objects.all()
+
+        # books filter by author id from query param
+        author_id = request.GET.get('author')
+        if author_id:
+            author = Author.objects.filter(id=author_id).first()
+            if author:
+                books = BookPage.objects.filter(authors=author)
+                is_filtered = True
+
+        # add to context all authors list with id and name
+        authors = Author.objects.all().order_by('name').values('id', 'name')
+
+        context.update({
+            'authors': authors,
+            'books': books,
+            'is_filtered': is_filtered
+        })
+        return context
+
 
 class BookPage(Page):
+    """Book Page model"""
     name = models.CharField(max_length=250)
     create_date = models.DateField("Create date")
     description = RichTextField(blank=True)
@@ -73,6 +99,7 @@ class BookPage(Page):
 
 
 class BookPageImage(Orderable):
+    """Book Page Image Orderable model"""
     page = ParentalKey(BookPage, on_delete=models.CASCADE, related_name='book_images')
     image = models.ForeignKey(
         'wagtailimages.Image', on_delete=models.CASCADE, related_name='+'
