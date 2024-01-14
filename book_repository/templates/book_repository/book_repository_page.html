@@ -6,26 +6,56 @@
 
 {% block content %}
 
-    <form action="{% url 'search' %}" method="get" class="form-inline mb-2">
-        <div class="input-group">
-            <input id="navbar-search-input" name="query" type="text" class="form-control" placeholder="Search" aria-label="Search" />
+    <div class="col-4">
+        <form action="{% url 'search' %}" method="get" class="form-inline mb-2">
+            <div class="input-group">
+                <input id="navbar-search-input" name="query" type="text" class="form-control" placeholder="Search" aria-label="Search" />
 
-            <button class="btn btn-outline-light" type="submit" aria-label="Submit query">
-                <i class="bi bi-search"></i>
-            </button>
-        </div>
-    </form>
+                <button class="btn btn-outline-light" type="submit" aria-label="Submit query">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </form>
 
-    <h1>{{ page.title }}</h1>
-    {{ page.body|richtext }}
+        <form id="authorFilterForm" method="get" class="form-inline mb-2">
+            <div class="input-group">
+                <select name="author" class="form-control">
+                    <option value="">All Authors</option>
+                    {% for author in authors %}
+                        <option
+                            value="{{ author.id }}"
+                            {% if request.GET.author == author.id|slugify %}selected{% endif %}
+                        >
+                            {{ author.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+    </div>
+    <div class="book-repository-body mb-2">
+        <h1>{{ page.title }}</h1>
+        {{ page.body|richtext }}
 
-    {% for book in page.get_children %}
-        <h2><a href="{% pageurl book %}">{{ book.title|richtext }}</a></h2>
+        {% for book in books %}
+            <h2><a href="{% pageurl book %}">{{ book.title|richtext }}</a></h2>
 
-        {% with book.specific.main_image as main_image %}
-            {% if main_image %}{% image main_image fill-160x100 %}{% endif %}
-        {% endwith %}
+            {% with book.specific.main_image as main_image %}
+                {% if main_image %}{% image main_image fill-160x100 %}{% endif %}
+            {% endwith %}
 
-    {% endfor %}
+        {% endfor %}
+        {% if is_filtered and not books %}
+            We does not have any books with this author.
+        {% endif %}
+    </div>
+{% endblock %}
 
+{% block extra_js %}
+    <script>
+        // Submit form when any option is selected
+        document.getElementById("authorFilterForm").addEventListener("change", function () {
+            this.submit();
+        });
+    </script>
 {% endblock %}
