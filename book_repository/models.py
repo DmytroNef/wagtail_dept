@@ -10,12 +10,16 @@ from wagtail.snippets.models import register_snippet
 
 
 @register_snippet
-class Author(models.Model):
+class Author(models.Model, index.Indexed):
     name = models.CharField(max_length=255)
     author_image = models.ForeignKey(
         'wagtailimages.Image', null=True, blank=True,
         on_delete=models.SET_NULL, related_name='+'
     )
+
+    search_fields = [
+        index.FilterField('name'),
+    ]
 
     panels = [
         FieldPanel('name'),
@@ -52,6 +56,9 @@ class BookPage(Page):
 
     search_fields = Page.search_fields + [
         index.SearchField('name'),
+        index.RelatedFields('authors', [
+            index.FilterField('name'),
+        ]),
     ]
 
     content_panels = Page.content_panels + [
